@@ -1,9 +1,10 @@
 package application;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.time.format.DateTimeParseException;
+import java.util.InputMismatchException;
+import java.util.Locale;
 import java.util.Scanner;
 
 import model.entities.Contract;
@@ -14,38 +15,38 @@ import model.services.PaypalService;
 public class Program {
     public static void main(String[] args) throws Exception {
         
+        Locale.setDefault(Locale.US);
         Scanner sc = new Scanner(System.in);
-        DateTimeFormatter sdf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        System.out.println("Enter contract data: ");
-        System.out.print("Number: ");
-        Integer numberC = sc.nextInt();
-        sc.nextLine();
-        System.out.print("Date (dd/mm/yyyy): ");
-        LocalDate date = LocalDate.parse(sc.next(), sdf);
-        System.out.print("Contract value: ");
-        Double value = sc.nextDouble();
-        sc.nextLine();
-        System.out.print("Enter number of installments: ");
-        Integer numberI = sc.nextInt();
-        sc.nextLine();
-        Contract contract = new Contract(numberC, date, value);
-        ContractService contractService = new ContractService(new PaypalService());
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern("dd/MM/yyyy"); 
         
-        contractService.processContract(contract, numberI);
-        System.out.println("Installments:");
-        for (Installment i : contract.getInstallments()){
-            System.out.println(i);
+        try{
+            System.out.println("Enter contract data: ");
+            System.out.print("Number: ");
+            Integer numberC = sc.nextInt();
+            sc.nextLine();
+            System.out.print("Date (dd/mm/yyyy): ");
+            LocalDate date = LocalDate.parse(sc.next(), sdf);
+            System.out.print("Contract value: ");
+            Double value = sc.nextDouble();
+            sc.nextLine();
+            System.out.print("Enter number of installments: ");
+            Integer numberI = sc.nextInt();
+            sc.nextLine();
+            Contract contract = new Contract(numberC, date, value);
+            ContractService contractService = new ContractService(new PaypalService());
+            
+            contractService.processContract(contract, numberI);
+            System.out.println("Installments:");
+            for (Installment i : contract.getInstallments()){
+                System.out.println(i);
+            }
         }
-
-
-
-        
-
-
-
-
-
+        catch (InputMismatchException e ){
+            System.out.println("Incorrect format. Please enter a valid value");
+        }
+        catch (DateTimeParseException e){
+            System.out.println("Incorrect format. Please enter date format (dd/MM/yyyy)");
+        }
         sc.close();
     }
 }
